@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <meta name="theme-color" content="#1a2332" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="description"
+      content="Karachi Cricket - Find cricket grounds, join matches, and manage your team in Karachi. The ultimate cricket management platform for local cricket enthusiasts."
+    />
+    <meta name="keywords" content="cricket, karachi, cricket grounds, cricket matches, team management, cricket app, pakistan cricket" />
+    <meta name="author" content="Karachi Cricket" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Mobile web app optimizations -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Karachi Cricket - Cricket Management Platform" />
+    <meta property="og:description" content="Find cricket grounds, join matches, and manage your team in Karachi." />
+    <meta property="og:site_name" content="Karachi Cricket" />
+
+    <title>Karachi Cricket</title>
+
+    <style>
+      /* Critical CSS for faster first paint */
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #1a2332;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      #root {
+        min-height: 100vh;
+      }
+
+      /* Prevent FOUC (Flash of Unstyled Content) */
+      .loading-screen {
+        position: fixed;
+        inset: 0;
+        background: #1a2332;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+      }
+
+      .loading-screen.hidden {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.5s ease-out, visibility 0.5s;
+      }
+
+      .loading-ball {
+        width: 40px;
+        height: 40px;
+        background: #b91c3c;
+        border-radius: 50%;
+        position: relative;
+        margin-bottom: 16px;
+        animation: ballBounce 1.5s ease-in-out infinite;
+      }
+
+      .loading-ball::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 70%;
+        height: 2px;
+        background: rgba(255,255,255,0.6);
+        transform: translate(-50%, -50%) rotate(-45deg);
+      }
+
+      .loading-text {
+        color: #f5f0e6;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 14px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+
+      @keyframes ballBounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-12px); }
+      }
+    </style>
+  <base target="_blank">
+</head>
+  <body>
+    <noscript>
+      <div style="padding: 2rem; text-align: center; font-family: sans-serif; color: #1a2332;">
+        <h2>🏏 Karachi Cricket</h2>
+        <p>You need to enable JavaScript to run this app.</p>
+      </div>
+    </noscript>
+
+    <!-- Initial loading screen (replaced by React) -->
+    <div id="root">
+      <div class="loading-screen" id="initial-loader">
+        <div class="loading-ball"></div>
+        <div class="loading-text">CRICZONE</div>
+      </div>
+    </div>
+
+    <script>
+      // Hide initial loader when React mounts
+      window.addEventListener('load', function() {
+        const loader = document.getElementById('initial-loader');
+        if (loader) {
+          loader.classList.add('hidden');
+          setTimeout(() => loader.remove(), 600);
+        }
+      });
+    </script>
+  </body>
+</html>
