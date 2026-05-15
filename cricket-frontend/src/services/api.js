@@ -9,7 +9,7 @@ const api = axios.create({
   },
 });
 
-// Automatically add token if available
+// Add token automatically
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
