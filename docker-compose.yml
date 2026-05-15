@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./cricket_backend
+    container_name: cricket-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./cricket_backend/.env
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  frontend:
+    build: ./cricket-frontend
+    container_name: cricket-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://backend:8000/api/v1
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    container_name: cricket-db
+    environment:
+      POSTGRES_DB: cricket_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Aman>>>   # Change this!
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
