@@ -5,9 +5,15 @@ from app.core.database import get_db
 from app.models.match_stat import MatchStat
 from app.models.match import Match
 from app.models.player import Player
-from app.schemas.stats import MatchStatCreate
+from app.schemas.stats import MatchStatCreate, MatchSummaryResponse
 
 router = APIRouter(prefix="/stats", tags=["Match Statistics"])
+
+def calculate_true_overs(overs_val: float) -> float:
+    """Converts cricket overs (e.g. 10.5) to true decimal (10.833)"""
+    whole_overs = int(overs_val)
+    balls = round((overs_val - whole_overs) * 10)
+    return whole_overs + (balls / 6.0)
 
 @router.post("/add")
 def add_player_stats(
@@ -44,7 +50,7 @@ def add_player_stats(
     return {"message": "Stats saved successfully", "stat_id": new_stat.id}
 
 
-@router.get("/match-summary/{match_id}")
+@router.get("/match-summary/{match_id}", response_model=MatchSummaryResponse)
 def get_match_summary(match_id: int, db: Session = Depends(get_db)):
     match = db.query(Match).filter(Match.id == match_id).first()
     if not match:
@@ -52,7 +58,7 @@ def get_match_summary(match_id: int, db: Session = Depends(get_db)):
 
     stats = db.query(MatchStat).filter(MatchStat.match_id == match_id).all()
 
-    # Auto Calculations
+    # Team Stats
     team1_stats = [s for s in stats if s.team_id == match.team1_id]
     team2_stats = [s for s in stats if s.team_id == match.team2_id]
 
@@ -61,9 +67,15 @@ def get_match_summary(match_id: int, db: Session = Depends(get_db)):
     total_runs_t2 = sum(s.runs for s in team2_stats)
     total_wickets_t2 = sum(s.wickets_taken for s in team2_stats)
 
-    # Run Rate
-    overs_t1 = sum(float(s.overs_bowled) for s in team1_stats) or 1
-    run_rate_t1 = round(total_runs_t1 / overs_t1, 2)
+    # Run Rate Calculation (Team 1)
+    true_overs_t1 = sum(calculate_true_overs(float(s.overs_bowled)) for s in team1_stats)
+    run_rate_t1 = round(total_runs_t1 / true_overs_t1, 2) if true_overs_t1 > 0 else 0.0
+
+    # Top Player Strike Rate
+    all_batters = [s for s in stats if s.balls_faced > 0]
+    top_sr = None
+    if all_batters:
+        top_sr = max((s.runs / s.balls_faced * 100) for s in all_batters)
 
     return {
         "match_id": match_id,
@@ -74,5 +86,6 @@ def get_match_summary(match_id: int, db: Session = Depends(get_db)):
         "total_runs_team2": total_runs_t2,
         "total_wickets_team2": total_wickets_t2,
         "run_rate_team1": run_rate_t1,
-        "current_status": "Live" if match.status == "ongoing" else match.status
+        "status": match.status,
+        "strike_rate_top_player": round(top_sr, 2) if top_sr is not None else None
     }

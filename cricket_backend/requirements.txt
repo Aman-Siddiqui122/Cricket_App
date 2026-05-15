@@ -1,4 +1,5 @@
 pydantic[email]
+pydantic-settings
 fastapi
 uvicorn[standard]
 sqlalchemy
@@ -10,3 +11,4 @@ python-dotenv
 alembic
 pandas
 openpyxl
+psycopg2-binary

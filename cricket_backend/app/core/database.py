@@ -1,15 +1,16 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from .config import settings
 
-# Build database URL
-SQLALCHEMY_DATABASE_URL = (
-    f"mysql+pymysql://{settings.MYSQL_USER}:{settings.MYSQL_PASSWORD}@"
-    f"{settings.MYSQL_SERVER}/{settings.MYSQL_DB}"
-)
+# For SQLite, we need to allow multiple threads to access the same database
+connect_args = {"check_same_thread": False} if settings.DATABASE_URL.startswith("sqlite") else {}
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True, echo=False)
+engine = create_engine(
+    settings.DATABASE_URL, 
+    pool_pre_ping=True, 
+    echo=False,
+    connect_args=connect_args
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

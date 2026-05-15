@@ -80,15 +80,24 @@ def create_match(
 ):
     """Create a new match (Team Admin or Super Admin)"""
     
-    # Basic permission check
-    if current_user.role == 'team_admin':
-        # Team admin can only create matches for their own team
-        team = db.query(Team).filter(Team.admin_id == current_user.id).first()
-        if not team or team.id != match_data.team1_id:
-            raise HTTPException(status_code=403, detail="Not authorized to create match for this team")
-    elif current_user.role != 'admin':
-        # Only admin or team_admin can create matches
-        raise HTTPException(status_code=403, detail="Not authorized to create matches")
+    # Permission Check
+    if current_user.role != 'admin':
+        # Check if user is admin of the initiating team (team1)
+        team = db.query(Team).filter(Team.id == match_data.team1_id).first()
+        if not team:
+            raise HTTPException(status_code=404, detail="Team 1 not found")
+            
+        if team.admin_id != current_user.id:
+            raise HTTPException(
+                status_code=403, 
+                detail="Not authorized: Only the team leader can create matches for this team"
+            )
+            
+        # Optional: Sync role for existing users
+        if current_user.role == 'user':
+            current_user.role = 'team_admin'
+            db.add(current_user)
+            db.commit()
 
     # Validate teams exist
     team1 = db.query(Team).filter(Team.id == match_data.team1_id).first()

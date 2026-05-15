@@ -4,27 +4,29 @@ import api from '../services/api';
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('create');
   const [matches, setMatches] = useState([]);
+  const [grounds, setGrounds] = useState([]);
+  const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [pageLoaded, setPageLoaded] = useState(false);
-  const [focusedField, setFocusedField] = useState(null);
-  const [submitStatus, setSubmitStatus] = useState('idle'); // idle | loading | success | error
-
-  const [matchForm, setMatchForm] = useState({
-    ground_id: '',
-    team1_id: '',
-    team2_id: '',
-    match_date: '',
-    match_time: ''
-  });
 
   useEffect(() => {
-    const timer = setTimeout(() => setPageLoaded(true), 100);
-    return () => clearTimeout(timer);
+    fetchInitialData();
   }, []);
 
-  useEffect(() => {
-    if (activeTab === 'matches') fetchMatches();
-  }, [activeTab]);
+  const fetchInitialData = async () => {
+    try {
+      setLoading(true);
+      const [groundsRes, teamsRes] = await Promise.all([
+        api.get('/grounds/'),
+        api.get('/teams/')
+      ]);
+      setGrounds(groundsRes.data);
+      setTeams(teamsRes.data);
+    } catch (err) {
+      console.error("Failed to fetch admin data", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchMatches = async () => {
     try {
@@ -46,7 +48,13 @@ const AdminPanel = () => {
     e.preventDefault();
     setSubmitStatus('loading');
     try {
-      await api.post('/matches/', { ...matchForm, overs_per_inning: 20 });
+      await api.post('/matches/', { 
+        ...matchForm, 
+        ground_id: parseInt(matchForm.ground_id),
+        team1_id: parseInt(matchForm.team1_id),
+        team2_id: matchForm.team2_id ? parseInt(matchForm.team2_id) : null,
+        overs_per_inning: 20 
+      });
       setSubmitStatus('success');
       setTimeout(() => {
         setSubmitStatus('idle');

@@ -23,7 +23,11 @@ async def get_current_user(
 
     user = db.query(User).filter(User.email == email).first()
     if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found, please login again",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user
 
 

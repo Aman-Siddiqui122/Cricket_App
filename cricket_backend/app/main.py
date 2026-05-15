@@ -3,7 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 
 # Import routers
-from app.api import auth, grounds, teams, matches, stats, payments
+from app.api.auth import router as auth_router
+from app.api.grounds import router as grounds_router
+from app.api.teams import router as teams_router
+from app.api.matches import router as matches_router
+from app.api.stats import router as stats_router
+from app.api.payments import router as payments_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -21,12 +26,14 @@ app.add_middleware(
 )
 
 # ====================== ROUTERS ======================
-app.include_router(auth.router, prefix=settings.API_V1_STR)
-app.include_router(grounds.router, prefix=settings.API_V1_STR)
-app.include_router(teams.router, prefix=settings.API_V1_STR)
-app.include_router(matches.router, prefix=settings.API_V1_STR)
-app.include_router(stats.router, prefix=settings.API_V1_STR)
-app.include_router(payments.router, prefix=settings.API_V1_STR)
+# Each router already has its own prefix (e.g. /auth, /teams)
+# We include them under the API_V1_STR prefix (/api/v1)
+app.include_router(auth_router, prefix=settings.API_V1_STR)
+app.include_router(grounds_router, prefix=settings.API_V1_STR)
+app.include_router(teams_router, prefix=settings.API_V1_STR)
+app.include_router(matches_router, prefix=settings.API_V1_STR)
+app.include_router(stats_router, prefix=settings.API_V1_STR)
+app.include_router(payments_router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():

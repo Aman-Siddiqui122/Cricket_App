@@ -81,6 +81,9 @@ def verify_payment(
     if current_user.role != 'admin':
         raise HTTPException(status_code=403, detail="Only super admin can verify payments")
 
+    if status not in ["approved", "rejected"]:
+        raise HTTPException(status_code=400, detail="Invalid status. Must be 'approved' or 'rejected'")
+
     payment = db.query(Payment).filter(Payment.id == payment_id).first()
     if not payment:
         raise HTTPException(status_code=404, detail="Payment not found")
@@ -92,8 +95,10 @@ def verify_payment(
         if team:
             team.subscription_status = 'active'
             team.subscription_end = date.today() + timedelta(days=30)
+            db.add(team)
 
+    db.add(payment)
     db.commit()
     db.refresh(payment)
 
-    return {"message": f"Payment {status} successfully", "payment": payment}
+    return {"message": f"Payment {status} successfully", "payment_id": payment.id, "status": payment.status}
