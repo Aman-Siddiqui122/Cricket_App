@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api/v1";
+const API_BASE_URL = "https://cricket-app-community.onrender.com/api/v1";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -9,7 +9,7 @@ const api = axios.create({
   },
 });
 
-// Add token to requests
+// Automatically add token if available
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
