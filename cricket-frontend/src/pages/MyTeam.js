@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { FaUsers, FaCrown, FaPhone, FaMoneyBillWave, FaPlus } from 'react-icons/fa';
 import { extractErrorMessage } from '../utils/errorUtils';
@@ -456,9 +457,9 @@ const MyTeam = () => {
               <button className="team-btn-primary" onClick={() => setShowCreateModal(true)}>
                 <FaPlus /> Register My Team
               </button>
-              <a href="/join-team" className="team-btn-outline">
-                Join Existing Team
-              </a>
+               <Link to="/join-team" className="team-btn-outline">
+                 Join Existing Team
+               </Link>
             </div>
           </div>
 

@@ -1,14 +1,13 @@
 from pydantic_settings import BaseSettings
-import os
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Karachi Cricket"
     API_V1_STR: str = "/api/v1"
     
-    # Defaults for easier local development
-    DATABASE_URL: str = "sqlite:///./cricket.db"
+    # PostgreSQL Database URL (from Render)
+    DATABASE_URL: str
     
-    SECRET_KEY: str = "secret-key-for-dev-only"
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080
 

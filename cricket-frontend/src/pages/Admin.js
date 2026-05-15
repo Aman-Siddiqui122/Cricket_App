@@ -7,6 +7,16 @@ const AdminPanel = () => {
   const [grounds, setGrounds] = useState([]);
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [pageLoaded, setPageLoaded] = useState(false);
+  const [focusedField, setFocusedField] = useState(null);
+  const [submitStatus, setSubmitStatus] = useState('idle'); // idle | loading | success | error
+  const [matchForm, setMatchForm] = useState({
+    ground_id: '',
+    team1_id: '',
+    team2_id: '',
+    match_date: '',
+    match_time: ''
+  });
 
   useEffect(() => {
     fetchInitialData();

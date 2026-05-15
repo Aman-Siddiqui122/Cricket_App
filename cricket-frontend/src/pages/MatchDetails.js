@@ -141,3 +141,7 @@ const MatchDetails = () => {
             )}
           </>
         )}
+      </div>
+    </>
+  );
+};
