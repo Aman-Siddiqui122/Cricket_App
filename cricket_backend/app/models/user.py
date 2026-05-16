@@ -14,5 +14,4 @@ class User(Base):
     created_at = Column(TIMESTAMP, server_default=func.current_timestamp())
     # updated_at removed to avoid error
 
-    # Relationships
     teams_admin = relationship("Team", back_populates="admin", foreign_keys="Team.admin_id")
