@@ -8,6 +8,8 @@ from app.models.team import Team
 from app.schemas.team import TeamResponse
 from app.dependencies import get_current_user
 
+from app.schemas.payment import PaymentResponse
+
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
 @router.post("/subscribe/{team_id}")
@@ -60,7 +62,7 @@ async def submit_subscription_payment(
     }
 
 
-@router.get("/my-payments")
+@router.get("/my-payments", response_model=list[PaymentResponse])
 def get_my_payments(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
@@ -70,7 +72,7 @@ def get_my_payments(
     return payments
 
 
-@router.post("/verify/{payment_id}")
+@router.post("/verify/{payment_id}", response_model=dict)
 def verify_payment(
     payment_id: int,
     status: str,   # "approved" or "rejected"

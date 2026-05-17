@@ -102,6 +102,10 @@ class Team(Base):
     def players_count(self):
         return len(self.players) if self.players else 0
 
+    @players_count.setter
+    def players_count(self, value):
+        self._players_count = value
+
     def is_active(self):
         """
         Check if team subscription is active

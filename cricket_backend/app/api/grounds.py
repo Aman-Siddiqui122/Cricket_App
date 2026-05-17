@@ -5,6 +5,8 @@ from app.core.database import get_db
 from app.models.ground import Ground
 from app.schemas.ground import GroundCreate, GroundResponse
 
+from app.dependencies import get_current_admin
+
 router = APIRouter(prefix="/grounds", tags=["Grounds"])
 
 # ====================== PUBLIC ENDPOINTS ======================
@@ -29,9 +31,9 @@ def get_ground_by_id(ground_id: int, db: Session = Depends(get_db)):
 def create_ground(
     ground_data: GroundCreate,
     db: Session = Depends(get_db),
-    # current_user = Depends(get_current_admin)  # Uncomment when admin protection needed
+    current_user = Depends(get_current_admin)
 ):
-    """Create new ground (Admin only - protected later)"""
+    """Create new ground (Admin only)"""
     new_ground = Ground(
         name=ground_data.name,
         location=ground_data.location,

@@ -6,6 +6,7 @@ class TeamCreate(BaseModel):
     name: str
     contact_number: Optional[str] = None
     jazzcash_number: Optional[str] = None
+    home_ground_id: Optional[int] = None
 
 class TeamResponse(BaseModel):
     id: int

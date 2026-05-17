@@ -4,7 +4,6 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Karachi Cricket"
     API_V1_STR: str = "/api/v1"
     
-    # PostgreSQL Database URL (from Render)
     DATABASE_URL: str
     
     SECRET_KEY: str

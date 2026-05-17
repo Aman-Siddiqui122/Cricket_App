@@ -12,6 +12,5 @@ class User(Base):
     role = Column(Enum('user', 'admin', 'team_admin', name='user_role'), default='user')
     phone = Column(String(20))
     created_at = Column(TIMESTAMP, server_default=func.current_timestamp())
-    # updated_at removed to avoid error
 
     teams_admin = relationship("Team", back_populates="admin", foreign_keys="Team.admin_id")
