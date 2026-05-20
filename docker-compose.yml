@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: cricket-db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Aman>>>
+      POSTGRES_PASSWORD: pgadminDB_Password
     ports:
       - "5432:5432"
     volumes:
@@ -19,8 +19,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://postgres:Aman>>>@db:5432/cricket-db
-      - SECRET_KEY=5b208688f40694772a901bdbb9a38f4acbe8bd55471d940c5f3f17ac1954fbe9
+      - DATABASE_URL=postgresql://postgres:pgadminDB_Password@db:5432/db-name
+      - SECRET_KEY=4B208688f40694772a901bdbb9a38f4acbe8bd55471d940c5f3f17ac1954fbL0
     depends_on:
       - db
 
