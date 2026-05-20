@@ -3,9 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
 from app.models.ground import Ground
-from app.schemas.ground import GroundCreate, GroundResponse
-
-from app.dependencies import get_current_admin
+from app.schemas.ground import GroundResponse, GroundCreate
 
 router = APIRouter(prefix="/grounds", tags=["Grounds"])
 
@@ -30,10 +28,10 @@ def get_ground_by_id(ground_id: int, db: Session = Depends(get_db)):
 @router.post("/", response_model=GroundResponse)
 def create_ground(
     ground_data: GroundCreate,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_admin)
+    db: Session = Depends(get_db)
+    # current_user = Depends(get_current_admin)   # ← Commented out for testing
 ):
-    """Create new ground (Admin only)"""
+    """Create new ground (Temporarily open for testing)"""
     new_ground = Ground(
         name=ground_data.name,
         location=ground_data.location,

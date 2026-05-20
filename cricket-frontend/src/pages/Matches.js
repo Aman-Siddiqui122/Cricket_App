@@ -26,7 +26,8 @@ const Matches = () => {
 
   // Create Match Modal State
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [myTeam, setMyTeam] = useState(null);
+  const [myTeams, setMyTeams] = useState([]);          // FIXED: array for multiple teams
+  const [selectedTeam, setSelectedTeam] = useState(null); // FIXED: track which team user picks
   const [allTeams, setAllTeams] = useState([]);
   const [myGrounds, setMyGrounds] = useState([]);
   const [modalLoading, setModalLoading] = useState(false);
@@ -70,22 +71,35 @@ const Matches = () => {
     fetchMatches();
   };
 
+  // FIXED: Uses /teams/my-teams (returns array), lets user pick which team to use
   const openCreateModal = async () => {
     setShowCreateModal(true);
     setMatchForm({ team2_id: '', ground_id: '', ground_name: '', ground_source: '', match_date: '', match_time: '', overs_per_inning: '20' });
     setCreateError('');
     setModalLoading(true);
+    setSelectedTeam(null);
     try {
-      const [teamRes, teamsRes, groundsRes] = await Promise.all([
-        api.get('/teams/my-team'),
+      const [myTeamsRes, allTeamsRes, groundsRes] = await Promise.all([
+        api.get('/teams/my-teams'),      // FIXED: was /teams/my-team (singular)
         api.get('/teams/'),
         api.get('/grounds/'),
       ]);
-      setMyTeam(teamRes.data);
-      // Exclude own team from opponent list
-      setAllTeams((teamsRes.data || []).filter(t => t.id !== teamRes.data.id));
+
+      const myTeamsData = myTeamsRes.data || [];
+      setMyTeams(myTeamsData);
+
+      // FIXED: If user has teams, auto-select first one but let them change
+      if (myTeamsData.length > 0) {
+        setSelectedTeam(myTeamsData[0]);
+      }
+
+      // FIXED: Exclude ALL user's teams from opponent list, not just first one
+      const myTeamIds = new Set(myTeamsData.map(t => t.id));
+      setAllTeams((allTeamsRes.data || []).filter(t => !myTeamIds.has(t.id)));
       setMyGrounds(groundsRes.data || []);
+
     } catch (err) {
+      console.error(err);
       if (err.response?.status === 404) {
         setCreateError("You don't have a team yet. Please create your team first.");
       } else {
@@ -105,9 +119,13 @@ const Matches = () => {
     }));
   };
 
+  // FIXED: Uses selectedTeam instead of myTeam
   const handleCreateMatch = async (e) => {
     e.preventDefault();
-    if (!myTeam) return;
+    if (!selectedTeam) {
+      setCreateError("Please select your team first.");
+      return;
+    }
     if (!matchForm.team2_id) { setCreateError("Please select an opponent team."); return; }
     if (!matchForm.ground_id) { setCreateError("Please select a ground."); return; }
 
@@ -115,7 +133,7 @@ const Matches = () => {
     setCreateError('');
     try {
       await api.post('/matches/', {
-        team1_id: myTeam.id,
+        team1_id: selectedTeam.id,           // FIXED: uses selectedTeam
         team2_id: parseInt(matchForm.team2_id),
         ground_id: matchForm.ground_id,
         match_date: matchForm.match_date,
@@ -993,18 +1011,56 @@ const Matches = () => {
                       </div>
                     )}
 
-                    {/* Team 1 — auto-filled */}
-                    {myTeam && (
+                    {/* FIXED: If user has multiple teams, let them pick which one */}
+                    {myTeams.length > 1 && (
+                      <div className="cm-field">
+                        <label className={`cm-label ${focusedField === 'team1' ? 'focused' : ''}`}>
+                          Select Your Team <span className="cm-required">*</span>
+                        </label>
+                        <div className={`cm-input-wrap ${focusedField === 'team1' ? 'focused' : ''}`}>
+                          <span className="cm-input-icon">👑</span>
+                          <select
+                            className="cm-select"
+                            value={selectedTeam?.id || ''}
+                            onChange={e => {
+                              const team = myTeams.find(t => t.id === parseInt(e.target.value));
+                              setSelectedTeam(team);
+                            }}
+                            onFocus={() => setFocusedField('team1')}
+                            onBlur={() => setFocusedField(null)}
+                            required
+                          >
+                            <option value="">— Select your team —</option>
+                            {myTeams.map(t => (
+                              <option key={t.id} value={t.id}>{t.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* FIXED: Show team badge for selected team */}
+                    {selectedTeam && (
                       <>
-                        <div className="cm-label" style={{ marginBottom: '0.375rem' }}>YOUR TEAM (TEAM 1)</div>
+                        {myTeams.length === 1 && (
+                          <div className="cm-label" style={{ marginBottom: '0.375rem' }}>YOUR TEAM (TEAM 1)</div>
+                        )}
                         <div className="cm-team1-badge" style={{ marginBottom: '1.25rem' }}>
                           <div className="badge-icon">👑</div>
                           <div>
                             <div className="badge-label">Captain / Team Leader</div>
-                            <div className="badge-name">{myTeam.name}</div>
+                            <div className="badge-name">{selectedTeam.name}</div>
                           </div>
                         </div>
                       </>
+                    )}
+
+                    {/* FIXED: No teams message with link */}
+                    {myTeams.length === 0 && (
+                      <div className="cm-error" style={{ background: 'rgba(255, 193, 7, 0.1)', borderColor: 'rgba(255, 193, 7, 0.3)', color: '#856404' }}>
+                        <span>⚠️</span>
+                        <span>You don't have a team yet. Please create one first.</span>
+                      </div>
                     )}
 
                     <div className="cm-divider">Match Details</div>
@@ -1180,7 +1236,7 @@ const Matches = () => {
                     <button
                       type="submit"
                       className="cm-submit-btn"
-                      disabled={createLoading || !myTeam}
+                      disabled={createLoading || myTeams.length === 0}
                     >
                       {createLoading ? (
                         <><div className="cm-btn-spinner" /> Creating Match...</>
