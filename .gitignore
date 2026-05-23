@@ -7,3 +7,4 @@ build/
 
 # Environment variables (contains secret keys)
 .env
+/node_modules/
